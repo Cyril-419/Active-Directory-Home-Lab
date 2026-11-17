@@ -2,7 +2,7 @@
 
 A small Windows domain built from scratch in VirtualBox, used to practice everyday **IT help desk and system administration** tasks: building a domain controller, joining a workstation, organizing users with OUs and groups, unlocking accounts, resetting passwords, offboarding, and pushing out Group Policy.
 
-> **Project summary:** I built a small Windows domain at home — a Windows Server 2022 domain controller and a Windows 11 client. I set up OUs, security groups and 13 users with PowerShell, applied Group Policies scoped to specific departments, and worked through real help desk tickets: lockouts, password resets, onboarding and offboarding. I also delegated just enough rights for a help desk group to do resets without being admins.
+> **Project summary:** I built a small Windows domain at home — a Windows Server 2022 domain controller and a Windows 11 client. I set up OUs, security groups and 12 users with PowerShell (plus 1 more onboarded through a new-hire ticket), applied Group Policies scoped to specific departments, and worked through real help desk tickets: lockouts, password resets, onboarding and offboarding. I also delegated just enough rights for a help desk group to do resets without being admins.
 
 The build is automated with the **PowerShell scripts** in [`/scripts`](scripts) so it can be repeated, and the results were checked in the GUI tools (Server Manager, ADUC, GPMC) — see the [screenshots](#screenshots).
 
