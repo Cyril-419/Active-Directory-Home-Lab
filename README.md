@@ -21,9 +21,10 @@ flowchart LR
 | Item | Value |
 |---|---|
 | Domain | `homelab.local` (NetBIOS `HOMELAB`) |
-| Domain controller | `DC01` — Windows Server 2022 (Desktop Experience), 2 vCPU / 4 GB RAM |
-| Client | `CLIENT01` — Windows 11 Enterprise eval, 2 vCPU / 4 GB RAM |
-| Network | VirtualBox NAT Network, DC on static `10.0.2.10` |
+| Domain controller | `DC01` — Windows Server 2022 Standard Eval (Desktop Experience), 2 vCPU / 3 GB RAM / 50 GB disk |
+| Client | `CLIENT01` — Windows 11 Enterprise Eval (TPM 2.0 + Secure Boot), 2 vCPU / 4 GB RAM / 80 GB disk |
+| Network | VirtualBox NAT Network `ADLab`, DC on static `10.0.2.10` |
+| Host | Windows PC, 16 GB RAM, 6-core CPU, VirtualBox 7.2 |
 
 ## Skills Demonstrated
 
@@ -86,18 +87,41 @@ Ticket-style practice scenarios: **[docs/helpdesk-tickets.md](docs/helpdesk-tick
 
 ## Screenshots
 
-> Screenshots live in [`/screenshots`](screenshots). Each one is added as the step is completed.
+### Domain controller
+**DC01 promoted — Server Manager showing the AD DS and DNS roles**
+![Server Manager](screenshots/01-server-manager.png)
 
-| Step | Screenshot |
-|---|---|
-| DC promoted — Server Manager showing AD DS & DNS | `screenshots/01-server-manager.png` |
-| OU / user structure in ADUC | `screenshots/02-aduc-ous.png` |
-| CLIENT01 joined — System properties showing domain | `screenshots/03-domain-joined.png` |
-| Locked-out user and unlock | `screenshots/04-unlock.png` |
-| Password reset with "must change at next logon" | `screenshots/05-password-reset.png` |
-| GPMC showing linked GPOs | `screenshots/06-gpmc.png` |
-| `gpresult /r` on CLIENT01 | `screenshots/07-gpresult.png` |
-| Logon banner on CLIENT01 | `screenshots/08-logon-banner.png` |
+**OU structure in Active Directory Users and Computers (IT OU selected)**
+![ADUC OUs](screenshots/02-aduc-ous.png)
+
+**CLIENT01 placed in the Workstations OU at join time**
+![Workstations OU](screenshots/11-workstations-ou.png)
+
+**Group Policy Objects in GPMC**
+![GPMC](screenshots/06-gpmc.png)
+
+### Client
+**CLIENT01 joined to `homelab.local`, signed in as `homelab\pkim`, DC located with `nltest`**
+![Domain joined](screenshots/03-domain-joined.png)
+
+**Computer GPO: authorized-use banner before sign-in**
+![Logon banner](screenshots/08-logon-banner.png)
+
+**`gpresult /r` as a Sales user — both user GPOs applied from DC01, member of GG_Sales**
+![gpresult](screenshots/07-gpresult.png)
+
+**Sales-scoped GPO in action — Control Panel blocked for `pkim`**
+![Control Panel blocked](screenshots/09-gpo-control-panel-blocked.jpg)
+
+### Help desk tickets
+**TKT-1001 — account locked after 5 bad passwords, found and unlocked**
+![Unlock](screenshots/04-unlock.png)
+
+**TKT-1002 / TKT-1004 — password reset (must change at next logon) and new-hire account for Sam Lee**
+![Password reset and new hire](screenshots/05-password-reset-new-hire.png)
+
+**TKT-1005 — offboarding: disabled, groups removed, moved to Disabled Users**
+![Offboarding](screenshots/10-offboarding.png)
 
 ## What I Learned
 
@@ -114,3 +138,8 @@ Ticket-style practice scenarios: **[docs/helpdesk-tickets.md](docs/helpdesk-tick
 | No "Domain" option in System Properties | Windows **Home** edition | Use Pro / Enterprise / Education |
 | Users never lock out | New domains have lockout threshold = 0 | Set threshold in Default Domain Policy (step 7) |
 | GPO not applying | Object is in the wrong OU, or policy hasn't refreshed | Check OU in ADUC, run `gpupdate /force`, read `gpresult /r` |
+| Windows Setup: "Windows cannot find the Microsoft Software License Terms" | VirtualBox *unattended install* bug with the Server 2022 **evaluation** ISO | Mounted the ISO directly and did a normal (attended) install instead |
+| Typing into the PowerShell console did nothing | Clicking inside the legacy console window enters **QuickEdit/Select** mode, which swallows keystrokes (title bar shows "Select") | Press `Esc` or click the title bar instead of the console body |
+| DC01 screen froze after installing Guest Additions | New display driver loaded without a reboot | Rebooted the VM |
+| DC01 had no network after moving its adapter to the NAT Network while running | Stale DHCP lease from the previous adapter attachment | Reboot renewed the lease; gateway `10.0.2.1` then answered |
+| VMs sluggish, dropped keystrokes | Both VMs (7 GB) plus host apps on a 16 GB host | Closed host apps; DC01 sized at 3 GB |
