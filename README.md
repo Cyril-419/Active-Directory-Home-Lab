@@ -2,7 +2,9 @@
 
 A small Windows domain built from scratch in VirtualBox, used to practice everyday **IT help desk and system administration** tasks: building a domain controller, joining a workstation, organizing users with OUs and groups, unlocking accounts, resetting passwords, offboarding, and pushing out Group Policy.
 
-Every step was done both in the GUI (Server Manager, ADUC, GPMC) and with the **PowerShell scripts** in [`/scripts`](scripts), so the whole build can be repeated.
+> **Project summary:** I built a small Windows domain at home — a Windows Server 2022 domain controller and a Windows 11 client. I set up OUs, security groups and 13 users with PowerShell, applied Group Policies scoped to specific departments, and worked through real help desk tickets: lockouts, password resets, onboarding and offboarding. I also delegated just enough rights for a help desk group to do resets without being admins.
+
+The build is automated with the **PowerShell scripts** in [`/scripts`](scripts) so it can be repeated, and the results were checked in the GUI tools (Server Manager, ADUC, GPMC) — see the [screenshots](#screenshots).
 
 ---
 
@@ -125,10 +127,15 @@ Ticket-style practice scenarios: **[docs/helpdesk-tickets.md](docs/helpdesk-tick
 
 ## What I Learned
 
-<!-- Fill this in after finishing the lab — real problems you hit are the best part for interviews -->
-- 
-- 
-- 
+- **Virtualization:** I built two computers inside my PC with VirtualBox — a Windows Server 2022 domain controller and a Windows 11 workstation — on their own private network. That meant planning RAM, CPU and disk for each one, because both VMs share my PC's 16 GB.
+- **DNS is the foundation of Active Directory:** the domain controller needs a static IP, and every computer joining the domain has to use the DC for DNS. If DNS is wrong, the domain join fails — it's the first thing I'd check on any "can't reach the domain" ticket.
+- **OUs vs. groups:** OUs organize accounts and are where Group Policy gets applied. Security groups are how permissions get granted. Giving access to a group like `GG_Sales` instead of to individual users means someone changing departments is a quick group swap.
+- **Group Policy scoping:** where a GPO is linked decides who gets it. My "Block Control Panel" policy only hit Sales users while IT users weren't affected, and `gpresult /r` shows exactly which policies applied to a user and why.
+- **Least privilege:** help desk staff don't need to be Domain Admins. I gave the help desk group only the rights to reset passwords and unlock accounts, and only on the Users OU.
+- **Secure defaults aren't automatic:** a brand-new domain has no account lockout policy, so accounts never lock no matter how many wrong passwords are tried. I set it to lock after 5 attempts for 15 minutes.
+- **Real help desk habits:** verify the caller's identity before resetting a password, force a password change at next sign-in, disable departed users instead of deleting them and remove their group access, and log every action like a ticket.
+- **PowerShell saves time:** the GUI is good for one-off fixes, but scripting created 12 users, 5 groups and 11 OUs the same way every time, and the build can be repeated.
+- **Troubleshooting is part of the job:** VirtualBox's automatic install failed on the Server trial ISO, a VM's screen froze after a driver install, and a stale DHCP lease cut off the network. Each time I read the error, isolated the cause, fixed it, and documented it in the table below.
 
 ## Troubleshooting Notes
 
